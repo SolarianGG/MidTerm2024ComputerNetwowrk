@@ -8,6 +8,7 @@
 #include <strsafe.h>
 #include "KInput.h"
 #include <vector>
+#include "Client.hxx"
 
 double g_drawScale = 1.0;
 
@@ -71,6 +72,19 @@ int main(void)
     clock_t currClock = prevClock;
     int i = 1;
 
+    const auto connectionHandl = new network::ConnectionHandler();
+    if (!connectionHandl->Initialize())
+    {
+        printf("Failed to initialize client\n");
+        return 1;
+    }
+
+    if (!connectionHandl->Connect())
+    {
+        printf("Failed to connect to server\n");
+        return 2;
+    }
+
     while (isGameLoop == true)
     {
         if (Input.GetKeyDown(VK_ESCAPE)) {
@@ -85,4 +99,6 @@ int main(void)
         Sleep(10);
         DrawGameWorld(elapsedTime);
     }
+
+    connectionHandl->Disconect();
 }

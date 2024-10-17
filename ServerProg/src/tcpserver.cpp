@@ -66,7 +66,7 @@ void main(void)
 
     ServerAddr.sin_family = AF_INET;
     ServerAddr.sin_port = htons(Port);
-    ServerAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    ServerAddr.sin_addr.s_addr = inet_addr("192.168.192.1");
 
     // Associate the address information with the socket using bind.
 

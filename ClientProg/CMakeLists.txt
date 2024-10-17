@@ -6,4 +6,7 @@ add_executable(MidTermClient
 	${CMAKE_CURRENT_SOURCE_DIR}/src/KInput.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/MyUtil.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/MyUtil.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Client.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Client.hxx
+
 )
