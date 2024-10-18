@@ -9,6 +9,8 @@
 #include "KInput.h"
 #include <vector>
 #include "Client.hxx"
+#include <iostream>
+#include <thread>
 
 double g_drawScale = 1.0;
 
@@ -33,16 +35,20 @@ void Update(double elapsedTime)
     if (Input.GetKeyDown(VK_LEFT)) {
         g_pos.x -= 1;
         
-    }if (Input.GetKeyDown(VK_RIGHT)) {
+    }
+    if (Input.GetKeyDown(VK_RIGHT)) {
         g_pos.x += 1;
         
-    }if (Input.GetKeyDown(VK_DOWN)) {
+    }
+    if (Input.GetKeyDown(VK_DOWN)) {
         g_pos.y += 1;
         
-    }if (Input.GetKeyDown(VK_UP)) {
+    }
+    if (Input.GetKeyDown(VK_UP)) {
         g_pos.y -= 1;
         
     }
+
 }
 
 void DrawGameWorld(double elapsedTime) {
@@ -61,6 +67,21 @@ void DrawGameWorld(double elapsedTime) {
     DrawBuffer();
 }
 
+void chatting(bool& isChatting, const network::ConnectionHandler& connHandl)
+{
+    isChatting = true;
+    connHandl.SendData("Ready to greet the server", 26);
+    int i = 0;
+    while (i < 20)
+    {
+        connHandl.SendData("Hello Server", 13);
+        Sleep(1000);
+        i++;
+    }
+
+    isChatting = false;
+}
+
 int main(void)
 {
     g_hwndConsole = GetConsoleWindow();
@@ -72,23 +93,30 @@ int main(void)
     clock_t currClock = prevClock;
     int i = 1;
 
-    const auto connectionHandl = new network::ConnectionHandler();
-    if (!connectionHandl->Initialize())
+    network::ConnectionHandler connectionHandl{};
+    if (!connectionHandl.Initialize())
     {
         printf("Failed to initialize client\n");
         return 1;
     }
 
-    if (!connectionHandl->Connect())
+    if (!connectionHandl.Connect())
     {
         printf("Failed to connect to server\n");
         return 2;
     }
 
-    while (isGameLoop == true)
+    bool isChattingMode = false;
+    while (isGameLoop)
     {
         if (Input.GetKeyDown(VK_ESCAPE)) {
             isGameLoop = false;
+        }
+        if (Input.GetKeyDown(VK_SPACE) && !isChattingMode)
+        {
+            std::thread chatting_thread(chatting, std::ref(isChattingMode), std::cref(connectionHandl));
+
+            chatting_thread.detach();
         }
         prevClock = currClock;
         currClock = clock();
@@ -98,7 +126,8 @@ int main(void)
         Update(elapsedTime);
         Sleep(10);
         DrawGameWorld(elapsedTime);
+       
     }
 
-    connectionHandl->Disconect();
+    connectionHandl.Disconect();
 }

@@ -57,6 +57,28 @@ namespace network {
 		return true;
 	}
 
+	bool ConnectionHandler::SendData(const char* data, size_t data_size) const
+	{
+		int Ret;
+		if ((Ret = send(s, data, data_size, 0)) == SOCKET_ERROR) {
+			printf("send failed with error %d\n", WSAGetLastError());
+			return false;
+		}
+
+		return true;
+	}
+
+	bool ConnectionHandler::ReceiveData(char* data, size_t data_size) const
+	{
+		int Ret = 0;
+		if ((Ret = recv(s, data, data_size, 0)) == SOCKET_ERROR) {
+			printf("recv failed with error %d\n", WSAGetLastError());
+			return false;
+		}
+
+		return true;
+	}
+
 	bool ConnectionHandler::Disconect()
 	{
 		std::cout << "We are closing the connection.\n";
