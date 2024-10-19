@@ -35,7 +35,7 @@ void main(void)
     int                  ClientAddrLen = sizeof(ClientAddr);
     int                  Port = 5150;
     int                  Ret;
-    char                 DataBuffer[1024];
+    char                 DataBuffer[128];
 
     // Initialize Winsock version 2.2
 

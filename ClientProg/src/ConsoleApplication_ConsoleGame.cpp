@@ -11,6 +11,15 @@
 #include "Client.hxx"
 #include <iostream>
 #include <thread>
+#include <conio.h>
+#include <array>
+#include <mutex>
+
+
+std::array<char, 128> buffer = {""};
+std::array<char, 128> receiveBuffer = {""};
+
+std::mutex g_m;
 
 double g_drawScale = 1.0;
 
@@ -48,7 +57,6 @@ void Update(double elapsedTime)
         g_pos.y -= 1;
         
     }
-
 }
 
 void DrawGameWorld(double elapsedTime) {
@@ -64,20 +72,57 @@ void DrawGameWorld(double elapsedTime) {
     PutTextf(1, 2, "h = %g", h);
     PutTextf(1, 3, "v = %g", v);
     PutText(g_pos.x, g_pos.y, "P");
+    PutTextf(1, g_height - 3, "Chat: %s", buffer.data());
+    PutTextf(1, g_height - 2, "Server: %s", receiveBuffer.data());
     DrawBuffer();
 }
 
 void chatting(bool& isChatting, const network::ConnectionHandler& connHandl)
 {
     isChatting = true;
-    connHandl.SendData("Ready to greet the server", 26);
-    int i = 0;
-    while (i < 20)
+    int index = 0;
+
+    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+
+    while (true)
     {
-        connHandl.SendData("Hello Server", 13);
-        Sleep(1000);
-        i++;
+        int ch = _getch();
+
+        if (ch == 224) {
+            int arrowKey = _getch();
+            switch (arrowKey) {
+            case 75:
+            case 77:
+            case 72:
+            case 80:
+                continue;
+            default:
+                break;
+            }
+        }
+
+        
+        if (ch == '\r') {
+            buffer[index] = '\0'; 
+            break;
+        }
+
+        if (ch == '\b' && index > 0) {
+            index--;
+            buffer[index] = '\0';
+            continue;
+        }
+
+        if (index < sizeof(buffer) - 1 && ch >= 32 && ch <= 126) {
+            buffer[index++] = ch;
+        }
     }
+
+    connHandl.SendData(buffer.data(), buffer.size());
+    fflush(stdin);
+    buffer.fill('\0');
+
+    connHandl.ReceiveData(receiveBuffer.data(), receiveBuffer.size());
 
     isChatting = false;
 }

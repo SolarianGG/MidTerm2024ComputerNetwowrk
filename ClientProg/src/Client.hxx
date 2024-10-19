@@ -31,13 +31,5 @@ namespace network {
 		void SetServerIP(const std::string& ip) { ip_ = ip; }
 
 		void SetServerPort(int port) { port_ = port; }
-
-		~ConnectionHandler() { }
-
-		// Removing default copy constructor and operator= to avoid copying
-
-		ConnectionHandler(const ConnectionHandler& other) = delete;
-
-		ConnectionHandler& operator=(const ConnectionHandler& other) = delete;
 	};
 }
